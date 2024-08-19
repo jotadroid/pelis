@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
 import org.springframework.ui.Model;
 
 @Controller
@@ -30,12 +32,32 @@ public class ControladorPeliculas {
     }
 
     @GetMapping("/peliculas/{nombre}")
-    public String obtenerPeliculaPorNombre(@PathVariable String nombre){
-        for (String pelicula : listaPeliculas.keySet()){
-            if (pelicula.equalsIgnoreCase(obtenerPeliculaPorNombre(nombre))){
-                return "Pelicula: " + pelicula + "Director: " + listaPeliculas.get(pelicula);
+    public String obtenerPeliculaPorNombre(@PathVariable String nombre, Model model){
+        if (listaPeliculas.containsKey(nombre)) {
+            String director = listaPeliculas.get(nombre);
+            model.addAttribute("pelicula", nombre);
+            model.addAttribute("director", director);
+            System.out.println("Película encontrada: " + nombre + ", Director: " + director);
+            return "pelicula.jsp";
+        }
+        System.out.println("La película no se encuentra.");
+        return "peliculaNoEncontrada.jsp";
+    }
+
+    @GetMapping("/peliculas/director/{nombre}")
+    public String obtenerPeliculasPorDirector(@PathVariable String director, Model model){
+        ArrayList<String> peliculasDirector = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : listaPeliculas.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(director)){
+                peliculasDirector.add(entry.getKey());
             }
         }
-        return "La pelicula no se encuentra";
+        if (!peliculasDirector.isEmpty()) {
+            model.addAttribute("director", director);
+            model.addAttribute("peliculas", peliculasDirector);
+            return "peliculasPorDirector.jsp";
+        }
+    return "peliculaNoEncontrada.jsp";
     }
 }
